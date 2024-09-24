@@ -57,7 +57,7 @@ public class ParameterFileParser {
 		} catch (FileNotFoundException e) {
 			warn(e, " Datei wurde nicht gefunden : " + file.getName(), log);
 		} catch (IOException e) {
-			warn(e, " Datei konnte nicht ge�ffnet werden :", log);
+			warn(e, " Datei konnte nicht geffnet werden :", log);
 		}
 
 		findCoefficientsUsingReflection(coeffs, model);

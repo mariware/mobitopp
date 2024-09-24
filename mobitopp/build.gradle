@@ -1,14 +1,19 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        jcenter()
-    }
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'maven-publish'
+    id 'jacoco'
+    id 'signing'
 }
 
-plugins {
-    id "maven-publish"
-	id 'signing'
+// Set source and target compatibility
+sourceCompatibility = '23'
+targetCompatibility = '23'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    // Removed jcenter as it is deprecated
 }
 
 configurations {
@@ -17,9 +22,8 @@ configurations {
 
 dependencies {
     annotationProcessor libraries.lombok
-    
     compileOnly libraries.lombok
-    
+
     implementation libraries.actitopp,
             libraries.opencsv,
             libraries.commons_compress,
@@ -29,29 +33,29 @@ dependencies {
             libraries.log4j,
             libraries.slf4j,
             libraries.gson
-    
+
     testAnnotationProcessor libraries.lombok
-    
-    testCompileOnly libraries.lombok
-    
+    testImplementation libraries.lombok // Replaced testCompileOnly
     testImplementation libraries.junit_jupiter,
-                libraries.junit_migrationsupport,
-                libraries.assertj,
-                libraries.hamcrest_all,
-                libraries.hamcrest_optional,
-                libraries.mockito_core,
-                libraries.mockito_junit_jupiter,
-                libraries.equalsverifier
-        
-    testRuntime libraries.junit_vintage
+            libraries.junit_migrationsupport,
+            libraries.assertj,
+            libraries.hamcrest_all,
+            libraries.hamcrest_optional,
+            libraries.mockito_core,
+            libraries.mockito_junit_jupiter,
+            libraries.equalsverifier
+
+    testRuntimeOnly libraries.junit_vintage // Replaced testRuntime
 }
 
-tasks.withType(JavaCompile) { 
-    options.compilerArgs << "-Xlint:all" 
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:all"
 }
 
-eclipse.classpath {
-    downloadSources=true
+eclipse {
+    classpath {
+        downloadSources = true
+    }
 }
 
 sourceSets {
@@ -71,16 +75,16 @@ test {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier.set('sources') // Updated from classifier
     from sourceSets.main.allSource
 }
 
 javadoc {
-	options.encoding = "UTF-8"
+    options.encoding = "UTF-8"
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc') // Updated from classifier
     from javadoc.destinationDir
 }
 
@@ -104,48 +108,46 @@ publishing {
             def snapshotVersion = project.version.replaceAll("\\.${buildNumber}", '') + '-SNAPSHOT'
             version snapshotVersion
         }
-		mavenJava(MavenPublication) {
-			from components.java
-			artifact sourcesJar
-			artifact javadocJar
-			groupId project.group
-			artifactId project.name
-			version project.version
-			pom {
-				name = 'mobiTopp'
-				description = 'mobiTopp (http://mobitopp.ifv.kit.edu/) is an agent-based travel demand model developed at the Institute for transport studies at the Karlsruhe Institute of Technology (http://www.ifv.kit.edu/english/index.php). Publications about mobiTopp can be found on the project site (http://mobitopp.ifv.kit.edu/28.php).'
-				url = 'https://github.com/kit-ifv/mobitopp'
-				licenses {
-					license {
-						name = 'GNU GENERAL PUBLIC LICENSE, Version 3'
-						url = 'https://www.gnu.org/licenses/gpl-3.0-standalone.html'
-					}
-				}
-				developers {
-					developer {
-						id = 'lb'
-						name = 'Lars Briem'
-						email = 'lars.briem@kit.edu'
-					}
-					developer {
-						id = 'jk'
-						name = 'Jelle Kuebler'
-						email = 'jelle.kuebler@kit.edu'
-					}
-				}
-				scm {
-					connection = 'scm:git:git:https://github.com/kit-ifv/mobitopp.git'
-					developerConnection = 'scm:git:ssh:git@github.com:kit-ifv/mobitopp.git'
-					url = 'https://github.com/kit-ifv/mobitopp'
-				}
-			}
-		
-		}
-
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId project.group
+            artifactId project.name
+            version project.version
+            pom {
+                name = 'mobiTopp'
+                description = 'mobiTopp (http://mobitopp.ifv.kit.edu/) is an agent-based travel demand model...'
+                url = 'https://github.com/kit-ifv/mobitopp'
+                licenses {
+                    license {
+                        name = 'GNU GENERAL PUBLIC LICENSE, Version 3'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0-standalone.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'lb'
+                        name = 'Lars Briem'
+                        email = 'lars.briem@kit.edu'
+                    }
+                    developer {
+                        id = 'jk'
+                        name = 'Jelle Kuebler'
+                        email = 'jelle.kuebler@kit.edu'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git:https://github.com/kit-ifv/mobitopp.git'
+                    developerConnection = 'scm:git:ssh:git@github.com:kit-ifv/mobitopp.git'
+                    url = 'https://github.com/kit-ifv/mobitopp'
+                }
+            }
+        }
     }
     repositories {
         maven {
-			name = 'Internal'
+            name = 'Internal'
             credentials {
                 username getPropertyOrDefault('repositoryUsername')
                 password getPropertyOrDefault('repositoryPassword')
@@ -155,42 +157,38 @@ publishing {
             def snapshotsRepoUrl = "${repositoryUrl}/repository/maven-snapshots"
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
         }
-		maven {
-			name = 'External'
-			credentials {
-				username getPropertyOrDefault('user_oss')
-				password getPropertyOrDefault('pw_oss')
-			}
-
-			def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-			def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-			url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-		}
-
+        maven {
+            name = 'External'
+            credentials {
+                username getPropertyOrDefault('user_oss')
+                password getPropertyOrDefault('pw_oss')
+            }
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
     }
 }
 
 signing {
-	sign publishing.publications.mavenJava
+    sign publishing.publications.mavenJava
 }
 
 task publishAndCheckRelease() {
-	dependsOn publishReleasePublicationToInternalRepository
-	
-	if (project.hasProperty('isRelease') && project.property('isRelease').toBoolean()) {
-		print('New Release')
-		dependsOn publishMavenJavaPublicationToExternalRepository
-	} else {
-		print('No Release')
-	}
-	
+    dependsOn publishReleasePublicationToInternalRepository
+
+    if (project.hasProperty('isRelease') && project.property('isRelease').toBoolean()) {
+        print('New Release')
+        dependsOn publishMavenJavaPublicationToExternalRepository
+    } else {
+        print('No Release')
+    }
 }
 
 configure(publishAndCheckRelease) {
-	group = 'publishing'
-	description = 'Publish to internal repo. Also publish staging release to external repo if "isRelease" is set.'
+    group = 'publishing'
+    description = 'Publish to internal repo. Also publish staging release to external repo if "isRelease" is set.'
 }
-
 
 def getPropertyOrDefault(key) {
     return project.hasProperty(key) ? project.property(key) : key

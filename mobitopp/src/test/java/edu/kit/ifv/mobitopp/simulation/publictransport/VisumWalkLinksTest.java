@@ -227,7 +227,7 @@ public class VisumWalkLinksTest {
 	private VisumLinkType transferWalkType() {
 		VisumTransportSystem system = new VisumTransportSystem("F", "Fusswege", "F");
 		VisumTransportSystemSet systemSet = asSet(system);
-		return new VisumLinkType(7, "�V Umsteigefu�wege", systemSet, 0, 0, 0, 0);
+		return new VisumLinkType(7, "V Umsteigefuwege", systemSet, 0, 0, 0, 0);
 	}
 
 	private static VisumNode firstNode() {

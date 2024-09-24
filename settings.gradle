@@ -1,4 +1,5 @@
 rootProject.name = 'mobitopp-parent'
 
-include ':mobitopp'
-include ':example'
+enableFeaturePreview('TYPESAFE_PROJECT_ACCESSORS')
+
+include(':mobitopp', ':example')

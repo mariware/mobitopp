@@ -1,24 +1,35 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'signing'
+    id 'eclipse'
+}
+
+sourceCompatibility = '23'
+targetCompatibility = '23'
+
+repositories {
+    // Add Maven Central repository to resolve external dependencies
+    mavenCentral()
+}
+
 dependencies {
     implementation project(':mobitopp')
-    
-    annotationProcessor libraries.lombok
-    testAnnotationProcessor libraries.lombok
-    
-    compileOnly libraries.lombok
-    compile libraries.slf4j,
-        	libraries.log4j
-        	
-    testCompile libraries.lombok,
-    			libraries.slf4j,
-        		libraries.log4j
-        
-    testImplementation libraries.commons_compress,
-        libraries.junit_jupiter,
-        libraries.hamcrest_all,
-        libraries.mockito_core,
-        libraries.slf4j,
-        libraries.log4j
-        
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+
+    implementation 'org.slf4j:slf4j-api:1.7.32',
+                   'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0'
+
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testImplementation 'org.projectlombok:lombok:1.18.34',
+                       'org.slf4j:slf4j-api:1.7.32',
+                       'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0',
+                       'org.apache.commons:commons-compress:1.21',
+                       'org.junit.jupiter:junit-jupiter:5.8.1',
+                       'org.hamcrest:hamcrest-all:1.3',
+                       'org.mockito:mockito-core:3.12.4'
 }
 
 test {
@@ -27,12 +38,12 @@ test {
 
 task runPopulationSynthesisIpf(type: JavaExec) {
     args = ['config/leopoldshafen/population-synthesis-ipf.yaml']
-    main = "edu.kit.ifv.mobitopp.populationsynthesis.PopulationSynthesisIpf"
+    mainClass = "edu.kit.ifv.mobitopp.populationsynthesis.PopulationSynthesisIpf"
 }
 
 task runSimulationIpf(type: JavaExec, dependsOn: compileJava) {
     args = ['config/leopoldshafen/simulation-ipf.yaml']
-    main = "edu.kit.ifv.mobitopp.simulation.SimulationExample"
+    mainClass = "edu.kit.ifv.mobitopp.simulation.SimulationExample"
 }
 
 tasks.withType(JavaExec) {
